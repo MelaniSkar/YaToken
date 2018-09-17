@@ -5,6 +5,10 @@ import "./Ownable.sol";
 
 contract Ya is ERC20, Ownable {
     using SafeMath for uint256;
+    
+    string name = "Y";
+    string symbol ="Y";
+    uint256 decimals = 0;
 
     uint256 initialSupply = 40000;
     uint256 saleBeginTime = 1539561600;
@@ -23,9 +27,9 @@ contract Ya is ERC20, Ownable {
         _totalSupply = initialSupply;
         isHolder[this] = true;
         holders.push(this);
-        //saleBeginTime = block.timestamp + 60;
-        //saleEndTime = block.timestamp + 360;
-        //tokensDestructTime = block.timestamp + 660;
+        saleBeginTime = block.timestamp + 60;
+        saleEndTime = block.timestamp + 360;
+        tokensDestructTime = block.timestamp + 660;
     }
 
     /**
@@ -73,7 +77,7 @@ contract Ya is ERC20, Ownable {
     /**
 		 * @dev Internal function that burns all the tokens
 		 */
-    function destroyTokens() external onlyOwner {
+    function destroyTokens() external onlyOwner{
         require(block.timestamp > tokensDestructTime);
         _totalSupply = 0;
         for (uint i = 0; i < holders.length; ++i) {
@@ -96,13 +100,22 @@ contract Ya is ERC20, Ownable {
             holders.push(to);
         }
     }
-
-    //function hasTimeCome() public view returns(bool) {
-    //    return (block.timestamp > saleBeginTime);
-    //}
-//
-    //function currentTime() public view returns(uint256) {
-    //    return block.timestamp;
-    //}
-
+    
+    function hasSaleBeginTimeCome() public view returns(bool) {
+        return (block.timestamp > saleBeginTime);
+    }
+    
+    function hasSaleEndTimeCome() public view returns(bool) {
+        return (block.timestamp > saleEndTime);
+    }
+    
+    function hasTokensDestructTimeCome() public view returns(bool) {
+        return (block.timestamp > tokensDestructTime);
+    }
+    
+    function currentTime() public view returns(uint256) {
+        return block.timestamp;
+    }
+    
 }
+
