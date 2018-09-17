@@ -5,7 +5,7 @@ import "./Ownable.sol";
 
 contract Ya is ERC20, Ownable {
     using SafeMath for uint256;
-    
+
     string name = "Y";
     string symbol ="Y";
     uint256 decimals = 0;
@@ -15,8 +15,6 @@ contract Ya is ERC20, Ownable {
     uint256 saleEndTime = 1540857600;
     uint256 tokensDestructTime = 1667088000;
     mapping (address => uint256) private _balances;
-    mapping (address => bool) private isHolder;
-    address[] holders;
     uint256 private _totalSupply;
 
     event Mint(address indexed to, uint256 amount);
@@ -25,8 +23,6 @@ contract Ya is ERC20, Ownable {
     constructor() {
         _balances[this] = initialSupply;
         _totalSupply = initialSupply;
-        isHolder[this] = true;
-        holders.push(this);
         saleBeginTime = block.timestamp + 60;
         saleEndTime = block.timestamp + 360;
         tokensDestructTime = block.timestamp + 660;
@@ -75,47 +71,44 @@ contract Ya is ERC20, Ownable {
     }
 
     /**
-		 * @dev Internal function that burns all the tokens
-		 */
-    function destroyTokens() external onlyOwner{
-        require(block.timestamp > tokensDestructTime);
-        _totalSupply = 0;
-        for (uint i = 0; i < holders.length; ++i) {
-            _balances[holders[i]] = 0;
-        }
-        emit TokensDestroyed();
-    }
+        *@dev This sends all the funds to owner's address and destroys the contract.
+    **/
 
     function destructContract() external onlyOwner {
         selfdestruct(owner());
     }
 
+    /**
+        * @dev Internal function that transfers an amount of the token
+        * from `from` to `to`
+        * This encapsulates the modification of balances such that the
+        * proper events are emitted.
+        * @param from The account tokens are transferred from.
+        * @param to The account tokens are transferred to.
+        * @param amount The amount that will be created.
+    */
     function _transfer(address from, address to, uint256 amount) internal {
         require(amount <= _balances[from]);
         require(to != address(0));
         _balances[from] = _balances[from].sub(amount);
         _balances[to] = _balances[to].add(amount);
-        if(!isHolder[to]) {
-            isHolder[to] = true;
-            holders.push(to);
-        }
     }
-    
+
     function hasSaleBeginTimeCome() public view returns(bool) {
         return (block.timestamp > saleBeginTime);
     }
-    
+
     function hasSaleEndTimeCome() public view returns(bool) {
         return (block.timestamp > saleEndTime);
     }
-    
+
     function hasTokensDestructTimeCome() public view returns(bool) {
         return (block.timestamp > tokensDestructTime);
     }
-    
+
     function currentTime() public view returns(uint256) {
         return block.timestamp;
     }
-    
+
 }
 
