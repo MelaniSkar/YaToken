@@ -6,8 +6,8 @@ import "./Ownable.sol";
 contract Ya is ERC20, Ownable {
     using SafeMath for uint256;
 
-    string name = "Y";
-    string symbol ="Y";
+    string name = "Lawtest Token #1";
+    string symbol ="LT1";
     uint256 decimals = 0;
 
     uint256 initialSupply = 40000;
@@ -16,12 +16,14 @@ contract Ya is ERC20, Ownable {
     uint256 tokensDestructTime = 1667088000;
     mapping (address => uint256) private _balances;
     uint256 private _totalSupply;
+    uint256 private _amountForSale;
 
-    event Mint(address indexed to, uint256 amount);
+    event Mint(address indexed to, uint256 amount, uint256 amountForSale);
     event TokensDestroyed();
 
     constructor() {
         _balances[this] = initialSupply;
+        _amountForSale = initialSupply;
         _totalSupply = initialSupply;
         saleBeginTime = block.timestamp + 60;
         saleEndTime = block.timestamp + 360;
@@ -33,6 +35,10 @@ contract Ya is ERC20, Ownable {
 		*/
     function totalSupply() public view returns (uint256) {
         return _totalSupply;
+    }
+
+    function amountForSale() public view returns (uint256) {
+        return _amountForSale;
     }
 
     /**
@@ -67,7 +73,7 @@ contract Ya is ERC20, Ownable {
         require(saleBeginTime < block.timestamp);
         require(saleEndTime > block.timestamp);
         _transfer(this,  account, amount);
-        emit Mint(account, amount);
+        emit Mint(account, amount, _amountForSale);
     }
 
     /**
@@ -92,6 +98,8 @@ contract Ya is ERC20, Ownable {
         require(to != address(0));
         _balances[from] = _balances[from].sub(amount);
         _balances[to] = _balances[to].add(amount);
+        if(saleEndTime > block.timestamp)
+            _amountForSale = _balances[this];
     }
 
     function hasSaleBeginTimeCome() public view returns(bool) {
@@ -104,10 +112,6 @@ contract Ya is ERC20, Ownable {
 
     function hasTokensDestructTimeCome() public view returns(bool) {
         return (block.timestamp > tokensDestructTime);
-    }
-
-    function currentTime() public view returns(uint256) {
-        return block.timestamp;
     }
 
 }
